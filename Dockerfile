@@ -1,28 +1,21 @@
-# syntax=docker/dockerfile:1
+FROM eclipse-temurin:21-jdk-alpine AS build
+WORKDIR /workspace/app
 
-# Build the application from source
-FROM golang:1.21.5 AS build-stage
+COPY gradle gradle
+COPY build.gradle settings.gradle gradlew ./
+COPY src src
 
-WORKDIR /app
+RUN ./gradlew clean build -x test
+RUN mkdir -p build/libs/dependency && (cd build/libs/dependency; jar -xf ../*SNAPSHOT.jar)
 
-COPY go.mod go.sum ./
-RUN go mod download
+FROM eclipse-temurin:21-jdk-alpine
+VOLUME /tmp
+ARG DEPENDENCY=/workspace/app/build/libs/dependency
+COPY --from=build ${DEPENDENCY}/BOOT-INF/lib /app/lib
+COPY --from=build ${DEPENDENCY}/META-INF /app/META-INF
+COPY --from=build ${DEPENDENCY}/BOOT-INF/classes /app
 
-COPY . ./
+ENV SPRING_PROFILES_ACTIVE=prod
+ENV TZ=America/Sao_Paulo
 
-RUN make build
-
-# Deploy the application binary into a lean image
-FROM gcr.io/distroless/base-debian11:nonroot AS build-release-stage
-
-WORKDIR /
-
-COPY --from=build-stage /app/bin/rinha /rinha
-
-ENV TZ="America/Sao_Paulo"
-
-EXPOSE 8080
-
-USER nonroot:nonroot
-
-ENTRYPOINT ["/rinha"]
+ENTRYPOINT ["java","-cp","app:app/lib/*","io.github.marcusadriano.rinhaconcorrencia.RinhaApplication"]
