@@ -1,5 +1,6 @@
 package io.github.marcusadriano.rinhaconcorrencia.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -18,6 +19,9 @@ public class CreateTransactionRequest {
 
     @JsonProperty("tipo")
     private TransactionType type;
+
+    @JsonIgnore
+    private Long userId;
 
 
 }

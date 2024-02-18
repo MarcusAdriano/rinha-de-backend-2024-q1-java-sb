@@ -12,11 +12,12 @@ services:
       - DB_PORT=5432
       - DB_USER=postgres
       - DB_PWD=mysecretpassword
+      - SPRING_PROFILES_ACTIVE=prd
     deploy:
       resources:
         limits:
           cpus: '0.25'
-          memory: '175MB'
+          memory: '225MB'
 
   api2: # API - Instância 02
     <<: *api
@@ -38,7 +39,7 @@ services:
       resources:
         limits:
           cpus: '0.5'
-          memory: '100MB'
+          memory: '25MB'
 
   db: # Banco de dados
     image: postgres:16.1
@@ -46,8 +47,6 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=mysecretpassword
       - POSTGRES_DB=rinhabackend
-    ports:
-      - "5432:5432"
     volumes:
       - ./sql/init/:/docker-entrypoint-initdb.d/
       - ./sql/postgres.conf:/etc/postgresql/postgresql.conf
@@ -55,10 +54,9 @@ services:
       resources:
         limits:
           cpus: '0.5'
-          memory: '100MB'
+          memory: '75MB'
     command: postgres -c 'config_file=/etc/postgresql/postgresql.conf'
 
 networks:
   default:
     driver: bridge
-    name: rinha-net

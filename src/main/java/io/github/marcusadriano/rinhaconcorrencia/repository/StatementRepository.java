@@ -33,18 +33,7 @@ public class StatementRepository {
         this.db = db;
     }
 
-    public Mono<StatementResponse> getStatement(final Long id) {
-
-        final var transactions = transactions(id);
-        final var balance = balance(id);
-
-        return balance.flatMap(b -> transactions.collectList().map(t -> StatementResponse.builder()
-            .balance(b)
-            .lastTransactions(t)
-            .build()));
-    }
-
-    Mono<Balance> balance(final Long userId) {
+    public Mono<Balance> balance(final Long userId) {
         return db.sql(GET_USER_BALANCE)
             .bind("user_id", userId)
             .fetch()
@@ -57,7 +46,7 @@ public class StatementRepository {
             });
     }
 
-    Flux<Transaction> transactions(final Long userId) {
+    public Flux<Transaction> transactions(final Long userId) {
         return db.sql(GET_TRANSACTIONS_BY_USER)
             .bind("user_id", userId)
             .bind("query_limit", DEFAULT_QUERY_LIMIT)
@@ -66,7 +55,7 @@ public class StatementRepository {
             .map(row -> new Transaction(
                 (String) row.getOrDefault("description", ""),
                 (Long) row.getOrDefault("amount", 0L),
-                LocalDateTime.parse((String) row.getOrDefault("created_at", "")),
+                (LocalDateTime) row.getOrDefault("created_at", ""),
                 (String) row.getOrDefault("ttype", "")
             ));
     }
