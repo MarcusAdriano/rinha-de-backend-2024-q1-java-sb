@@ -50,6 +50,8 @@ services:
     volumes:
       - ./sql/init/:/docker-entrypoint-initdb.d/
       - ./sql/postgres.conf:/etc/postgresql/postgresql.conf
+    ports:
+      - "5432:5432"
     deploy:
       resources:
         limits:

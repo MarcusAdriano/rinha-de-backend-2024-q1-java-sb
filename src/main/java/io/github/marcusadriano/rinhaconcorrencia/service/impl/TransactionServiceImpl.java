@@ -23,14 +23,15 @@ public class TransactionServiceImpl implements TransactionService {
     public Mono<CreateTransactionResponse> createTransaction(final CreateTransactionRequest request) {
 
         return repo.updateUserBalance(request)
-            .map(balance -> {
+            .<CreateTransactionResponse>handle((balance, sink) -> {
                 if (balance.getBalance() + balance.getLimit() < 0) {
-                    throw new InsufficientBalance();
+                    sink.error(new InsufficientBalance());
+                    return;
                 }
-                return CreateTransactionResponse.builder()
+                sink.next(CreateTransactionResponse.builder()
                     .limit(balance.getLimit())
                     .balance(balance.getBalance())
-                    .build();
+                    .build());
             }).flatMap(response -> repo.insertTransaction(request).thenReturn(response));
     }
 }

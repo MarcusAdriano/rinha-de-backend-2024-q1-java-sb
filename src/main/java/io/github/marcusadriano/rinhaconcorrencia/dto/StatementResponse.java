@@ -16,6 +16,6 @@ public class StatementResponse {
 
     @JsonProperty("saldo")
     private Balance balance;
-    @JsonProperty("last_transactions")
+    @JsonProperty("ultimas_transacoes")
     private List<Transaction> lastTransactions;
 }
