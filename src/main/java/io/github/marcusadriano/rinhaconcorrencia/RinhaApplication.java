@@ -18,7 +18,7 @@ public class RinhaApplication implements InitializingBean {
     }
 
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() {
         mapper.configure(FAIL_ON_UNKNOWN_PROPERTIES, false);
         mapper.configure(ACCEPT_FLOAT_AS_INT, false);
     }
